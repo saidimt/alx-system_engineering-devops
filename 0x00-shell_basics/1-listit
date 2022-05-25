@@ -1,3 +1,2 @@
-echo '#!/bin/bash' > 1-listit
-echo 'pwd' >> 1-listit
-chmod 755 1-listit
+#!/bin/bash
+pwd
