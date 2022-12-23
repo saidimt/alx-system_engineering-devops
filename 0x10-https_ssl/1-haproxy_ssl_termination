@@ -2,7 +2,7 @@ global
 	log /dev/log	local0
 	log /dev/log	local1 notice
 	chroot /var/lib/haproxy
-	stats socket /run/haproxy/admin.sock mode 660 level admin
+	stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
 	stats timeout 30s
 	user haproxy
 	group haproxy
@@ -33,18 +33,20 @@ defaults
 	errorfile 503 /etc/haproxy/errors/503.http
 	errorfile 504 /etc/haproxy/errors/504.http
 
-frontend  smartcodez.tech-frontend-http
-        bind *:80
-        mode http
-	http-request set-header X-Forwarded-Proto http
-        default_backend smartcodez.tech-backend
+# start of parameters for ruthmarcuss.tech
+frontend ruthmarcuss.tech-http-frontend
+	bind	 *:80
+	option forwardfor
+	default_backend	 nginx_webservers
 
-frontend smartcodez-frontend-https
-	bind *:443 ssl crt /etc/haproxy/certs/www.smartcodez.tech.pem
-	http-request set-header X-Forwarded-Proto https
-	default_backend smartcodez.tech-backend
 
-backend smartcodez-backend
+frontend  ruthmarcuss.tech-https-frontend
+	bind *:443 ssl crt /etc/letsencrypt/live/www.ruthmarcuss.tech.tech/fullchain.pem
+        default_backend nginx_webservers
+
+
+backend nginx_webservers
         balance roundrobin
-        server 52736-web-01 52.91.154.135:80 check
-        server 52736-web-02 54.87.207.246:80 check
+        server 61590-web-01 18.204.7.186:80 check
+        server 61590-web-02 3.83.245.14:80 check
+# end of parameters
