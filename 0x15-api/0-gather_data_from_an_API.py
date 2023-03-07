@@ -1,33 +1,38 @@
 #!/usr/bin/python3
-"""
-Using https://jsonplaceholder.typicode.com
-returns info about employee TODO progress
-Implemented using recursion
-"""
-import re
-import requests
-import sys
+"""For a given employee ID, returns TODO list info"""
 
+if __name__ == "__main__":
+    """ __main__ """
 
-API = "https://jsonplaceholder.typicode.com"
-"""REST API url"""
+    import json
+    import requests
+    import sys
 
+    if len(sys.argv) != 2:
+        exit(1)
 
-if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        if re.fullmatch(r'\d+', sys.argv[1]):
-            id = int(sys.argv[1])
-            user_res = requests.get('{}/users/{}'.format(API, id)).json()
-            todos_res = requests.get('{}/todos'.format(API)).json()
-            user_name = user_res.get('name')
-            todos = list(filter(lambda x: x.get('userId') == id, todos_res))
-            todos_done = list(filter(lambda x: x.get('completed'), todos))
-            print(
-                'Employee {} is done with tasks({}/{}):'.format(
-                    user_name,
-                    len(todos_done),
-                    len(todos)
-                )
-            )
-            for todo_done in todos_done:
-                print('\t {}'.format(todo_done.get('title')))
+    empID = sys.argv[1]
+    url = 'https://jsonplaceholder.typicode.com/'
+
+    url_empID = url + 'users/' + str(empID)
+    user = requests.get(url_empID).json()
+
+    if (len(user) == 0):
+        exit(1)
+
+    empName = user.get("name")
+
+    url_TodoCompleted = url + 'todos?userId=' + empID + '&completed=true'
+    t = requests.get(url_TodoCompleted)
+    tJson = t.json()
+    nTodoDone = len(tJson)
+
+    url_TodoTotal = url + 'todos?userId=' + empID
+    tot = requests.get(url_TodoTotal)
+    totJson = tot.json()
+    nTodo = len(totJson)
+
+    print("Employee {} is done with tasks({}/{}):".format(
+        empName, nTodoDone, nTodo))
+    for i in range(nTodoDone):
+        print("\t {}".format(tJson[i].get("title")))
